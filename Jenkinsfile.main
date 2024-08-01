@@ -2,10 +2,10 @@
 pipeline {
     agent any
 
-    environment {
-        echo ' Define environment variables if needed '
+    //environment {
+      //  echo ' Define environment variables if needed '
         //MY_ENV_VAR = 'some-value'
-    }
+   // }
 
     stages {
         stage('Checkout') {
