@@ -11,9 +11,9 @@ pipeline {
             steps {
                 script {
                     def branchName = env.BRANCH_NAME
-                    if (branchName.startsWith('sprint1/')) {
+                    if (branchName.startsWith('main/')) {
                         echo "Running feature branch pipeline"
-                        load 'Jenkinsfile.sprint1'
+                        load 'Jenkinsfile.main'
                     } else if (branchName.startsWith('test/')) {
                         echo "Running hotfix branch pipeline"
                         load 'Jenkinsfile.test'
