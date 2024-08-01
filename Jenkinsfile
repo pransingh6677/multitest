@@ -1,6 +1,6 @@
 pipeline {
     agent any
-en
+
     stages {
         // stage('SonarQube Analysis') {
         //     steps {
