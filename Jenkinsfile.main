@@ -2,16 +2,11 @@
 pipeline {
     agent any
 
-    //environment {
-      //  echo ' Define environment variables if needed '
-        //MY_ENV_VAR = 'some-value'
-   // }
-
     stages {
         stage('Checkout') {
             steps {
                 // Checkout the code from the version control system
-                echo 'checkout scm..'
+                echo " checkout scm.. "
             }
         }
 
