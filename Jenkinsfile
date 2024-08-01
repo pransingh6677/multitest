@@ -1,28 +1,21 @@
 pipeline {
     agent any
     stages {
-        // stage('Checkout') {
-        //     steps {
-        //         checkout scm
-        //     }
-        // }
-
         stage('Run Different Configurations') {
             steps {
                 script {
                     def branchName = env.BRANCH_NAME
-                    echo branchName
-                    if (branchName.startsWith('main')) {
+                    echo "Branch Name: ${branchName}"
+                    
+                    if (branchName == 'main') {
                         echo "Running main branch pipeline"
-                        load 'Jenkinsfile.main'
-                    } 
-                    else if (branchName.startsWith('test')) {
+                        evaluate readFile('Jenkinsfile.main')
+                    } else if (branchName == 'test') {
                         echo "Running test branch pipeline"
-                        load 'Jenkinsfile.test'
-                    } 
-                    else {
+                        evaluate readFile('Jenkinsfile.test')
+                    } else {
                         echo "Running default pipeline"
-                        load 'Jenkinsfile.default'
+                        evaluate readFile('Jenkinsfile.default')
                     }
                 }
             }
