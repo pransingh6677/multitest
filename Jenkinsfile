@@ -15,10 +15,12 @@ pipeline {
                     if (branchName.startsWith('main')) {
                         echo "Running main branch pipeline"
                         load 'Jenkinsfile.main'
-                    } else if (branchName.startsWith('test')) {
+                    } 
+                    else if (branchName.startsWith('test')) {
                         echo "Running test branch pipeline"
                         load 'Jenkinsfile.test'
-                    } else {
+                    } 
+                    else {
                         echo "Running default pipeline"
                         load 'Jenkinsfile.default'
                     }
