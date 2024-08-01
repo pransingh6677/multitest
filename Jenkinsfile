@@ -12,10 +12,10 @@ pipeline {
                 script {
                     def branchName = env.BRANCH_NAME
                     echo branchName
-                    if (branchName.startsWith('main/')) {
+                    if (branchName.startsWith('main')) {
                         echo "Running feature branch pipeline"
                         load 'Jenkinsfile.main'
-                    } else if (branchName.startsWith('test/')) {
+                    } else if (branchName.startsWith('test')) {
                         echo "Running hotfix branch pipeline"
                         load 'Jenkinsfile.test'
                     } else {
