@@ -11,6 +11,7 @@ pipeline {
             steps {
                 script {
                     def branchName = env.BRANCH_NAME
+                    echo branchName
                     if (branchName.startsWith('main/')) {
                         echo "Running feature branch pipeline"
                         load 'Jenkinsfile.main'
