@@ -5,17 +5,17 @@ pipeline {
         stage('Changing Ownership to azureuser') {
             when {
                 anyOf {
-                    branch 'master'
-                    branch 'dev'
+                    branch 'main'
+                    branch 'test'
                 }
             }
             steps {
                 script {
                     def execCommand = 'sudo chown -R azureuser:azureuser /var/www/html/indiapollapi-main'
-                    if (env.BRANCH_NAME == 'master') {
+                    if (env.BRANCH_NAME == 'main') {
                         echo "Deploying to production server"
                         // Add deployment steps for production
-                    } else if (env.BRANCH_NAME == 'dev') {
+                    } else if (env.BRANCH_NAME == 'test') {
                         echo "Deploying to development server"
                         // Add deployment steps for development
                     } else {
@@ -48,17 +48,17 @@ pipeline {
         stage('Deploying') {
             when {
                 anyOf {
-                    branch 'master'
-                    branch 'dev'
+                    branch 'main'
+                    branch 'test'
                 }
             }
             steps {
                 script {
                     def execCommand = 'cd /var/www/html/indiapollapi-main && sudo bash deploy.sh'
-                    if (env.BRANCH_NAME == 'master') {
+                    if (env.BRANCH_NAME == 'main') {
                         echo "Deploying to production server"
                         // Add deployment steps for production
-                    } else if (env.BRANCH_NAME == 'dev') {
+                    } else if (env.BRANCH_NAME == 'test') {
                         echo "Deploying to development server"
                         // Add deployment steps for development
                     } else {
