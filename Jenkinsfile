@@ -4,7 +4,7 @@ pipeline {
     stages {
         // stage('SonarQube Analysis') {
         //     steps {
-        //         withSonarQubeEnv(installationName: 'SonarQube Scanner') {
+        //         withSonarQubeEnv(installationName: 'SonarQube Scanner') { 
         //             sh """/opt/sonarqube/bin/sonar-scanner \
         //             -D sonar.projectBaseDir=/var/lib/jenkins/workspace/$JOB_NAME/ \
         //             -D sonar.exclusions=vendor/**,storage/** \
