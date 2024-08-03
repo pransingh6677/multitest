@@ -81,7 +81,7 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy to prod') {
             when {
                 branch 'main' // Deploy only for the main branch
             }
