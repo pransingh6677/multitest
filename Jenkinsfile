@@ -36,8 +36,8 @@ pipeline {
         stage('Change Ownership') {
             when {
                 anyOf {
-                    branch 'master'
-                    branch 'dev'
+                    branch 'main'
+                    branch 'test'
                 }
             }
             steps {
@@ -45,12 +45,12 @@ pipeline {
                     def execCommand = "sudo chown -R azureuser:azureuser ${env.APP_DIR}"
                     def configName = ''
                     
-                    if (env.BRANCH_NAME == 'master') {
+                    if (env.BRANCH_NAME == 'main') {
                         echo "Changing ownership on production server"
                         configName = 'ProdServerConfig'
-                    } else if (env.BRANCH_NAME == 'dev') {
+                    } else if (env.BRANCH_NAME == 'test') {
                         echo "Changing ownership on development server"
-                        configName = 'DevServerConfig'
+                        configName = 'TestServer2'
                     } else {
                         echo "Unknown branch, skipping ownership change"
                     }
@@ -83,7 +83,7 @@ pipeline {
 
         stage('Deploy') {
             when {
-                branch 'master' // Deploy only for the master branch
+                branch 'main' // Deploy only for the main branch
             }
             steps {
                 script {
@@ -114,13 +114,13 @@ pipeline {
 
         stage('Deploy to Development') {
             when {
-                branch 'dev' // Deploy only for the dev branch
+                branch 'test' // Deploy only for the test branch
             }
             steps {
                 script {
                     echo "Deploying branch ${env.BRANCH_NAME} to development server"
                     sshPublisher(publishers: [sshPublisherDesc(
-                        configName: 'DevServerConfig',
+                        configName: 'TestServer2',
                         transfers: [sshTransfer(
                             cleanRemote: false,
                             excludes: '',
