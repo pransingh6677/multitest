@@ -2,14 +2,16 @@ pipeline {
     agent any
 
     environment {
-        // Define any environment variables here
-        APP_DIR = '/var/www/html/indiapollapi-main'
+        // Define environment variables with default values
+        PROD_APP_DIR = '/var/www/html/indiapollapi-main-prod'
+        TEST_APP_DIR = '/var/www/html/indiapollapi-main-test'
     }
 
     stages {
         stage('Checkout') {
             steps {
                 checkout scm // Checkout the code from the branch in the SCM
+                echo "Checked out code from branch ${env.BRANCH_NAME}"
             }
         }
 
@@ -42,9 +44,10 @@ pipeline {
             }
             steps {
                 script {
-                    def execCommand = "sudo chown -R azureuser:azureuser ${env.APP_DIR}"
+                    def appDir = env.BRANCH_NAME == 'main' ? env.PROD_APP_DIR : env.TEST_APP_DIR
+                    def execCommand = "sudo chown -R azureuser:azureuser ${appDir}"
                     def configName = ''
-                    
+
                     if (env.BRANCH_NAME == 'main') {
                         echo "Changing ownership on production server"
                         configName = 'ProdServerConfig'
@@ -93,13 +96,13 @@ pipeline {
                         transfers: [sshTransfer(
                             cleanRemote: false,
                             excludes: '',
-                            execCommand: "cd ${env.APP_DIR} && sudo bash deploy.sh",
+                            execCommand: "cd ${env.PROD_APP_DIR} && sudo bash deploy.sh",
                             execTimeout: 1800000,
                             flatten: false,
                             makeEmptyDirs: false,
                             noDefaultExcludes: false,
                             patternSeparator: '[, ]+',
-                            remoteDirectory: env.APP_DIR,
+                            remoteDirectory: env.PROD_APP_DIR,
                             remoteDirectorySDF: false,
                             removePrefix: '',
                             sourceFiles: ''
@@ -124,13 +127,13 @@ pipeline {
                         transfers: [sshTransfer(
                             cleanRemote: false,
                             excludes: '',
-                            execCommand: "cd ${env.APP_DIR} && sudo bash deploy.sh",
+                            execCommand: "cd ${env.TEST_APP_DIR} && sudo bash deploy.sh",
                             execTimeout: 1800000,
                             flatten: false,
                             makeEmptyDirs: false,
                             noDefaultExcludes: false,
                             patternSeparator: '[, ]+',
-                            remoteDirectory: env.APP_DIR,
+                            remoteDirectory: env.TEST_APP_DIR,
                             remoteDirectorySDF: false,
                             removePrefix: '',
                             sourceFiles: ''
