@@ -84,7 +84,7 @@ pipeline {
             }
         }
 
-        stage('Deploy to prod') {
+        stage('Deploy to Production(main)') {
             when {
                 branch 'main' // Deploy only for the main branch
             }
@@ -115,7 +115,7 @@ pipeline {
             }
         }
 
-        stage('Deploy to Development') {
+        stage('Deploy to Development(test)') {
             when {
                 branch 'test' // Deploy only for the test branch
             }
