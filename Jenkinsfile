@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        // Define environment variables with default values mergeeeeeeeeeee
+        // Define environment variables with default values 
         PROD_APP_DIR = '/var/www/html/indiapollapi-main-prod'
         TEST_APP_DIR = '/var/www/html/indiapollapi-main-test'
     }
