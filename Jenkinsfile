@@ -102,10 +102,10 @@ pipeline {
             steps {
                 script {
                     echo "Backing up production server"
-                    // Use the sh step for running the backup command
-                    sh """
-                        sudo tar -czf /var/backups/backup-$(date +%F-%T).tar.gz -C ${env.PROD_APP_DIR} .
-                    """
+                    // Escape $ sign and use single quotes
+                    sh '''
+                        sudo tar -czf /var/backups/backup-$(date +\\%F-\\%T).tar.gz -C ${PROD_APP_DIR} .
+                    '''
                 }
             }
         }
