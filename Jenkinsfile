@@ -1,11 +1,12 @@
 pipeline {
-    agent any
+    agent any  
 
     environment {
         // Define environment variables with default values 
         PROD_APP_DIR = '/var/www/html/indiapollapi-main-prod'
         TEST_APP_DIR = '/var/www/html/indiapollapi-main-test'
         DEV_APP_DIR = '/var/www/html/indiapollapi-main-dev' // Added for the dev branch
+        BACKUP_DIR = '/var/backupProd' // Ensure this directory exists on the server
     }
 
     stages {
@@ -53,8 +54,8 @@ pipeline {
                     if (env.BRANCH_NAME == 'main') {
                         echo "Changing ownership on production server"
                         appDir = env.PROD_APP_DIR
-                        execCommand = "sudo chown -R azureuser:azureuser ${appDir}"
-                        configName = 'ProdServerConfig'
+                        execCommand = "sudo chown -R jenkins:jenkins ${appDir}"
+                        configName = 'TestServer2'
                     } else if (env.BRANCH_NAME == 'test') {
                         echo "Changing ownership on testing server"
                         appDir = env.TEST_APP_DIR
@@ -95,17 +96,33 @@ pipeline {
             }
         }
 
-        stage('Backup Production Server') {
+        stage('Backup Production') {
             when {
-                branch 'main' // Only back up for the main branch
+                branch 'main' // Run only for the main branch
             }
             steps {
                 script {
-                    echo "Backing up production server"
-                    // Escape $ sign and use single quotes
-                    sh '''
-                        sudo tar -czf /var/backups/backup-$(date +\\%F-\\%T).tar.gz -C ${PROD_APP_DIR} .
-                    '''
+                    echo "Taking backup of production server before deployment"
+                    sshPublisher(publishers: [sshPublisherDesc(
+                        configName: 'TestServer2',
+                        transfers: [sshTransfer(
+                            cleanRemote: false,
+                            excludes: '',
+                            execCommand: "sudo tar -czf ${env.BACKUP_DIR}/backup_\$(date +%F_%T).tar.gz -C ${env.PROD_APP_DIR} .",
+                            execTimeout: 1800000,
+                            flatten: false,
+                            makeEmptyDirs: false,
+                            noDefaultExcludes: false,
+                            patternSeparator: '[, ]+',
+                            remoteDirectory: '',
+                            remoteDirectorySDF: false,
+                            removePrefix: '',
+                            sourceFiles: ''
+                        )],
+                        usePromotionTimestamp: false,
+                        useWorkspaceInPromotion: false,
+                        verbose: true
+                    )])
                 }
             }
         }
@@ -118,7 +135,7 @@ pipeline {
                 script {
                     echo "Deploying branch ${env.BRANCH_NAME} to production server"
                     sshPublisher(publishers: [sshPublisherDesc(
-                        configName: 'ProdServerConfig',
+                        configName: 'TestServer2',
                         transfers: [sshTransfer(
                             cleanRemote: false,
                             excludes: '',
