@@ -104,7 +104,7 @@ pipeline {
                     echo "Backing up production server"
                     // Escape $ sign and use single quotes
                     sh '''
-                        sudo tar -czf /var/backups/backup-$(date +\\%F-\\%T).tar.gz -C ${PROD_APP_DIR} .
+                        sudo -u jenkinsuser tar -czf /var/backups/backup-$(date +\\%F-\\%T).tar.gz -C ${PROD_APP_DIR} .
                     '''
                 }
             }
