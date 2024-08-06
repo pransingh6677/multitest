@@ -1,5 +1,5 @@
 pipeline {
-    agent any 
+    agent any
 
     environment {
         // Define environment variables with default values 
@@ -47,20 +47,23 @@ pipeline {
             steps {
                 script {
                     def appDir = ''
-                    def execCommand = "sudo chown -R azureuser:azureuser ${appDir}"
+                    def execCommand = ''
                     def configName = ''
 
                     if (env.BRANCH_NAME == 'main') {
                         echo "Changing ownership on production server"
                         appDir = env.PROD_APP_DIR
+                        execCommand = "sudo chown -R azureuser:azureuser ${appDir}"
                         configName = 'ProdServerConfig'
                     } else if (env.BRANCH_NAME == 'test') {
                         echo "Changing ownership on testing server"
                         appDir = env.TEST_APP_DIR
+                        execCommand = "sudo chown -R azureuser:azureuser ${appDir}"
                         configName = 'TestServer2'
                     } else if (env.BRANCH_NAME == 'dev') {
                         echo "Changing ownership on development server"
                         appDir = env.DEV_APP_DIR
+                        execCommand = "sudo chown -R azureuser:azureuser ${appDir}"
                         configName = 'DevServerConfig' // Ensure this config is defined
                     } else {
                         echo "Unknown branch, skipping ownership change"
