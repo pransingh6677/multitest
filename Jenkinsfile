@@ -6,7 +6,7 @@ pipeline {
         PROD_APP_DIR = '/var/www/html/indiapollapi-main-prod'
         TEST_APP_DIR = '/var/www/html/indiapollapi-main-test'
         DEV_APP_DIR = '/var/www/html/indiapollapi-main-dev' // Added for the dev branch
-        BACKUP_DIR = '/var/backups' // Ensure this directory exists on the server
+        BACKUP_DIR = '/var/backupProd' // Ensure this directory exists on the server
     }
 
     stages {
