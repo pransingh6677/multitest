@@ -54,7 +54,7 @@ pipeline {
                         echo "Changing ownership on production server"
                         appDir = env.PROD_APP_DIR
                         execCommand = "sudo chown -R azureuser:azureuser ${appDir}"
-                        configName = 'ProdServerConfig'
+                        configName = 'TestServer2'
                     } else if (env.BRANCH_NAME == 'test') {
                         echo "Changing ownership on testing server"
                         appDir = env.TEST_APP_DIR
