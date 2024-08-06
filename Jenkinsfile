@@ -102,26 +102,10 @@ pipeline {
             steps {
                 script {
                     echo "Backing up production server"
-                    sshPublisher(publishers: [sshPublisherDesc(
-                        configName: 'ProdServerConfig',
-                        transfers: [sshTransfer(
-                            cleanRemote: false,
-                            excludes: '',
-                            execCommand: "sudo tar -czf /var/backups/backup-$(date +%F-%T).tar.gz -C ${env.PROD_APP_DIR} .",
-                            execTimeout: 1800000,
-                            flatten: false,
-                            makeEmptyDirs: false,
-                            noDefaultExcludes: false,
-                            patternSeparator: '[, ]+',
-                            remoteDirectory: '',
-                            remoteDirectorySDF: false,
-                            removePrefix: '',
-                            sourceFiles: ''
-                        )],
-                        usePromotionTimestamp: false,
-                        useWorkspaceInPromotion: false,
-                        verbose: true
-                    )])
+                    // Use the sh step for running the backup command
+                    sh """
+                        sudo tar -czf /var/backups/backup-$(date +%F-%T).tar.gz -C ${env.PROD_APP_DIR} .
+                    """
                 }
             }
         }
