@@ -55,7 +55,7 @@ pipeline {
                         echo "Changing ownership on production server"
                         appDir = env.PROD_APP_DIR
                         execCommand = "sudo chown -R jenkins:jenkins ${appDir}"
-                        configName = 'ProdServerConfig'
+                        configName = 'TestServer2'
                     } else if (env.BRANCH_NAME == 'test') {
                         echo "Changing ownership on testing server"
                         appDir = env.TEST_APP_DIR
@@ -104,7 +104,7 @@ pipeline {
                 script {
                     echo "Taking backup of production server before deployment"
                     sshPublisher(publishers: [sshPublisherDesc(
-                        configName: 'ProdServerConfig',
+                        configName: 'TestServer2',
                         transfers: [sshTransfer(
                             cleanRemote: false,
                             excludes: '',
@@ -135,7 +135,7 @@ pipeline {
                 script {
                     echo "Deploying branch ${env.BRANCH_NAME} to production server"
                     sshPublisher(publishers: [sshPublisherDesc(
-                        configName: 'ProdServerConfig',
+                        configName: 'TestServer2',
                         transfers: [sshTransfer(
                             cleanRemote: false,
                             excludes: '',
