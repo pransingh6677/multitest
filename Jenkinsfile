@@ -6,7 +6,7 @@ pipeline {
         TEST_APP_DIR = '/var/www/html/indiapollapi-main-test'
         DEV_APP_DIR = '/var/www/html/indiapollapi-main-dev'
         BACKUP_DIR = '/var/backupProd'
-        SPRING_BRANCH_PREFIX = 'sprint-.*' // Prefix for sprint branches
+        SPRING_BRANCH_PREFIX = 'sprin*' // Prefix for sprint branches
     }
 
     stages {
