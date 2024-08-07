@@ -96,13 +96,11 @@ pipeline {
                         appDir = env.TEST_APP_DIR
                         execCommand = "sudo chown -R azureuser:azureuser ${appDir}"
                         configName = 'TestServer2'
-                    } else if (env.BRANCH_NAME == 'dev') {
+                    } else {
                         echo "Changing ownership on development server"
                         appDir = env.DEV_APP_DIR
                         execCommand = "sudo chown -R azureuser:azureuser ${appDir}"
                         configName = 'DevServerConfig' // Ensure this config is defined
-                    } else {
-                        echo "Unknown branch, skipping ownership change"
                     }
 
                     if (configName) {
@@ -197,7 +195,7 @@ pipeline {
 
         stage('Deploy to Dev') {
             when {
-                branch 'dev' // Deploy only for the dev branch
+                branch 'sprint-.*' // Deploy only for the dev branch
             }
             steps {
                 script {
