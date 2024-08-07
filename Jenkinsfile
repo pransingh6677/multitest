@@ -82,49 +82,46 @@ pipeline {
                 script {
                     def appDir = ''
                     def execCommand = ''
-                    def configName = ''
+                    def configName = 'TestServer2' // Default config for main and test branches
 
                     if (env.BRANCH_NAME == 'main') {
                         echo "Changing ownership on production server"
                         appDir = env.PROD_APP_DIR
                         execCommand = "sudo chown -R jenkins:jenkins ${appDir}"
-                        configName = 'TestServer2'
                     } else if (env.BRANCH_NAME == 'test') {
                         echo "Changing ownership on testing server"
                         appDir = env.TEST_APP_DIR
                         execCommand = "sudo chown -R jenkins:jenkins ${appDir}"
-                        configName = 'TestServer2'
                     } else if (env.BRANCH_NAME.startsWith(env.SPRING_BRANCH_PREFIX)) {
                         echo "Changing ownership on sprint server"
                         appDir = env.DEV_APP_DIR
                         execCommand = "sudo chown -R jenkins:jenkins ${appDir}"
-                        configName = 'TestServer2'
+                        configName = 'DevServerConfig' // Change config for sprint branches
                     } else {
                         echo "Unknown branch, skipping ownership change"
+                        return // Skip the SSH publisher step if no valid config is set
                     }
 
-                    if (configName) {
-                        sshPublisher(publishers: [sshPublisherDesc(
-                            configName: configName,
-                            transfers: [sshTransfer(
-                                cleanRemote: false,
-                                excludes: '',
-                                execCommand: execCommand,
-                                execTimeout: 1800000,
-                                flatten: false,
-                                makeEmptyDirs: false,
-                                noDefaultExcludes: false,
-                                patternSeparator: '[, ]+',
-                                remoteDirectory: '',
-                                remoteDirectorySDF: false,
-                                removePrefix: '',
-                                sourceFiles: ''
-                            )],
-                            usePromotionTimestamp: false,
-                            useWorkspaceInPromotion: false,
-                            verbose: true
-                        )])
-                    }
+                    sshPublisher(publishers: [sshPublisherDesc(
+                        configName: configName,
+                        transfers: [sshTransfer(
+                            cleanRemote: false,
+                            excludes: '',
+                            execCommand: execCommand,
+                            execTimeout: 1800000,
+                            flatten: false,
+                            makeEmptyDirs: false,
+                            noDefaultExcludes: false,
+                            patternSeparator: '[, ]+',
+                            remoteDirectory: '',
+                            remoteDirectorySDF: false,
+                            removePrefix: '',
+                            sourceFiles: ''
+                        )],
+                        usePromotionTimestamp: false,
+                        useWorkspaceInPromotion: false,
+                        verbose: true
+                    )])
                 }
             }
         }
