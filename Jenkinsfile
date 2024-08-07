@@ -10,31 +10,14 @@ pipeline {
     }
 
     stages {
-        // stage('Checkout') {
-            // steps {
-        //         checkout scm // Checkout the code from the branch in the SCM
-        //         echo "Checked out code from branch ${env.BRANCH_NAME}"
-                
-        //     }
-        // }
-            stage('Get Git Branch Name') {
+        stage('Checkout') {
             steps {
-                script {
-                    // Ensure that the workspace is a git repository
-                    checkout scm
-
-                    // Execute the git name-rev command and capture the output
-                    def branchName = sh(script: 'git name-rev --name-only HEAD', returnStdout: true).trim()
-                    
-                    // Print the branch name to the console log
-                    echo "Current branch or commit name: ${branchName}"
-
-                    // Use the branch name in other parts of your pipeline if needed
-                    // For example, setting an environment variable
-                    env.BRANCH_NAME = branchName
-                }
+                checkout scm // Checkout the code from the branch in the SCM
+                echo "Checked out code from branch ${env.BRANCH_NAME}"
+                
             }
         }
+            
 
 
         
