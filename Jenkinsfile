@@ -14,13 +14,8 @@ pipeline {
             steps {
                 checkout scm // Checkout the code from the branch in the SCM
                 echo "Checked out code from branch ${env.BRANCH_NAME}"
-                
             }
         }
-            
-
-
-        
 
         stage('Build') {
             steps {
@@ -42,6 +37,41 @@ pipeline {
             }
         }
 
+       stage('Backup Production') {
+            when {
+                branch 'main' // Run only for the main branch
+            }
+            steps {
+                script {
+                    echo "Taking backup of production server before deployment"
+                    sshPublisher(publishers: [sshPublisherDesc(
+                        configName: 'TestServer2',
+                        transfers: [sshTransfer(
+                            cleanRemote: false,
+                            excludes: '',
+                            execCommand: "sudo tar -czf ${env.BACKUP_DIR}/backup_\$(date +%F_%T).tar.gz -C ${env.PROD_APP_DIR} .",
+                            execTimeout: 1800000,
+                            flatten: false,
+                            makeEmptyDirs: false,
+                            noDefaultExcludes: false,
+                            patternSeparator: '[, ]+',
+                            remoteDirectory: '',
+                            remoteDirectorySDF: false,
+                            removePrefix: '',
+                            sourceFiles: ''
+                        )],
+                        usePromotionTimestamp: false,
+                        useWorkspaceInPromotion: false,
+                        verbose: true
+                    )])
+                }
+            }
+        }
+
+
+
+
+        
         stage('Change Ownership') {
             when {
                 anyOf {
@@ -101,36 +131,7 @@ pipeline {
             }
         }
 
-        stage('Backup Production') {
-            when {
-                branch 'main' // Run only for the main branch
-            }
-            steps {
-                script {
-                    echo "Taking backup of production server before deployment"
-                    sshPublisher(publishers: [sshPublisherDesc(
-                        configName: 'TestServer2',
-                        transfers: [sshTransfer(
-                            cleanRemote: false,
-                            excludes: '',
-                            execCommand: "sudo tar -czf ${env.BACKUP_DIR}/backup_\$(date +%F_%T).tar.gz -C ${env.PROD_APP_DIR} .",
-                            execTimeout: 1800000,
-                            flatten: false,
-                            makeEmptyDirs: false,
-                            noDefaultExcludes: false,
-                            patternSeparator: '[, ]+',
-                            remoteDirectory: '',
-                            remoteDirectorySDF: false,
-                            removePrefix: '',
-                            sourceFiles: ''
-                        )],
-                        usePromotionTimestamp: false,
-                        useWorkspaceInPromotion: false,
-                        verbose: true
-                    )])
-                }
-            }
-        }
+        
 
         stage('Deploy to Production') {
             when {
