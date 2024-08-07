@@ -14,6 +14,7 @@ pipeline {
             steps {
                 checkout scm // Checkout the code from the branch in the SCM
                 echo "Checked out code from branch ${env.BRANCH_NAME}"
+                sh 'git name-rev --name-only HEAD'
             }
         }
 
