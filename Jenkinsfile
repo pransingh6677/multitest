@@ -82,21 +82,23 @@ pipeline {
                 script {
                     def appDir = ''
                     def execCommand = ''
-                    def configName = 'TestServer2' // Default config for main and test branches
+                    def configName = ''
 
                     if (env.BRANCH_NAME == 'main') {
                         echo "Changing ownership on production server"
                         appDir = env.PROD_APP_DIR
                         execCommand = "sudo chown -R jenkins:jenkins ${appDir}"
+                        configName = 'TestServer2'
                     } else if (env.BRANCH_NAME == 'test') {
                         echo "Changing ownership on testing server"
                         appDir = env.TEST_APP_DIR
                         execCommand = "sudo chown -R jenkins:jenkins ${appDir}"
+                        configName = 'TestServer2'
                     } else if (env.BRANCH_NAME.startsWith(env.SPRING_BRANCH_PREFIX)) {
                         echo "Changing ownership on sprint server"
                         appDir = env.DEV_APP_DIR
                         execCommand = "sudo chown -R jenkins:jenkins ${appDir}"
-                        configName = 'TestServer2' // Change config for sprint branches
+                        configName = 'TestServer2' // Ensure this config is defined
                     } else {
                         echo "Unknown branch, skipping ownership change"
                         return // Skip the SSH publisher step if no valid config is set
@@ -196,7 +198,7 @@ pipeline {
                 script {
                     echo "Deploying branch ${env.BRANCH_NAME} to development server"
                     sshPublisher(publishers: [sshPublisherDesc(
-                        configName: 'TestServer2',
+                        configName: 'TestServer2', // Ensure this config is defined
                         transfers: [sshTransfer(
                             cleanRemote: false,
                             excludes: '',
