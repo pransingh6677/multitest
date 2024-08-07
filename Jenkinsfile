@@ -1,19 +1,23 @@
 pipeline {
-    agent any  
+    agent any   
 
     environment {
-        // Define environment variables with default values 
         PROD_APP_DIR = '/var/www/html/indiapollapi-main-prod'
         TEST_APP_DIR = '/var/www/html/indiapollapi-main-test'
-        DEV_APP_DIR = '/var/www/html/indiapollapi-main-dev' // Added for the dev branch
-        BACKUP_DIR = '/var/backupProd' // Ensure this directory exists on the server
+        DEV_APP_DIR = '/var/www/html/indiapollapi-main-dev'
+        BACKUP_DIR = '/var/backupProd'
+        SPRING_BRANCH_PREFIX = 'sprint-' // Prefix for sprint branches
     }
 
     stages {
         stage('Checkout') {
             steps {
-                checkout scm // Checkout the code from the branch in the SCM
-                echo "Checked out code from branch ${env.BRANCH_NAME}"
+                checkout scm
+                script {
+                    def branchName = sh(script: 'git name-rev --name-only HEAD', returnStdout: true).trim()
+                    env.BRANCH_NAME = branchName
+                    echo "Checked out code from branch ${env.BRANCH_NAME}"
+                }
             }
         }
 
@@ -22,7 +26,6 @@ pipeline {
                 script {
                     echo "Building branch ${env.BRANCH_NAME}"
                     // Insert build commands here
-                    // Example: sh './build.sh'
                 }
             }
         }
@@ -32,14 +35,13 @@ pipeline {
                 script {
                     echo "Testing branch ${env.BRANCH_NAME}"
                     // Insert test commands here
-                    // Example: sh './test.sh'
                 }
             }
         }
 
-       stage('Backup Production') {
+        stage('Backup Production') {
             when {
-                branch 'main' // Run only for the main branch
+                branch 'main'
             }
             steps {
                 script {
@@ -68,16 +70,12 @@ pipeline {
             }
         }
 
-
-
-
-        
         stage('Change Ownership') {
             when {
                 anyOf {
                     branch 'main'
                     branch 'test'
-                    branch 'dev'
+                    branch pattern: "${env.SPRING_BRANCH_PREFIX}.*" // Regex pattern for sprint branches
                 }
             }
             steps {
@@ -94,13 +92,13 @@ pipeline {
                     } else if (env.BRANCH_NAME == 'test') {
                         echo "Changing ownership on testing server"
                         appDir = env.TEST_APP_DIR
-                        execCommand = "sudo chown -R azureuser:azureuser ${appDir}"
+                        execCommand = "sudo chown -R jenkins:jenkins ${appDir}"
                         configName = 'TestServer2'
-                    } else if (env.BRANCH_NAME == 'dev') {
-                        echo "Changing ownership on development server"
+                    } else if (env.BRANCH_NAME.startsWith(env.SPRING_BRANCH_PREFIX)) {
+                        echo "Changing ownership on sprint server"
                         appDir = env.DEV_APP_DIR
-                        execCommand = "sudo chown -R azureuser:azureuser ${appDir}"
-                        configName = 'DevServerConfig' // Ensure this config is defined
+                        execCommand = "sudo chown -R jenkins:jenkins ${appDir}"
+                        configName = 'TestServer2'
                     } else {
                         echo "Unknown branch, skipping ownership change"
                     }
@@ -131,11 +129,9 @@ pipeline {
             }
         }
 
-        
-
         stage('Deploy to Production') {
             when {
-                branch 'main' // Deploy only for the main branch
+                branch 'main'
             }
             steps {
                 script {
@@ -166,7 +162,7 @@ pipeline {
 
         stage('Deploy to Testing') {
             when {
-                branch 'test' // Deploy only for the test branch
+                branch 'test'
             }
             steps {
                 script {
@@ -195,15 +191,15 @@ pipeline {
             }
         }
 
-        stage('Deploy to Dev') {
+        stage('Deploy to Sprint') {
             when {
-                branch 'dev' // Deploy only for the dev branch
+                branch pattern: "${env.SPRING_BRANCH_PREFIX}.*" // Regex pattern for sprint branches
             }
             steps {
                 script {
                     echo "Deploying branch ${env.BRANCH_NAME} to development server"
                     sshPublisher(publishers: [sshPublisherDesc(
-                        configName: 'DevServerConfig', // Ensure this config is defined
+                        configName: 'DevServerConfig',
                         transfers: [sshTransfer(
                             cleanRemote: false,
                             excludes: '',
