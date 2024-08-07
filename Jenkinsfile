@@ -1,5 +1,5 @@
 pipeline {
-    agent any   
+    agent any
 
     environment {
         PROD_APP_DIR = '/var/www/html/indiapollapi-main-prod'
@@ -89,17 +89,17 @@ pipeline {
                         echo "Changing ownership on production server"
                         appDir = env.PROD_APP_DIR
                         execCommand = "sudo chown -R jenkins:jenkins ${appDir}"
-                        configName = 'TestServer2'
+                        configName = 'ProductionServer' // Make sure this matches your SSH configuration
                     } else if (env.BRANCH_NAME == 'test') {
                         echo "Changing ownership on testing server"
                         appDir = env.TEST_APP_DIR
                         execCommand = "sudo chown -R jenkins:jenkins ${appDir}"
-                        configName = 'TestServer2'
+                        configName = 'TestingServer' // Make sure this matches your SSH configuration
                     } else if (env.BRANCH_NAME.startsWith(env.SPRING_BRANCH_PREFIX)) {
                         echo "Changing ownership on sprint server"
                         appDir = env.DEV_APP_DIR
                         execCommand = "sudo chown -R jenkins:jenkins ${appDir}"
-                        configName = 'TestServer2' // Ensure this config is defined correctly for sprint branches
+                        configName = 'TestServer2' // Make sure this matches your SSH configuration
                     } else {
                         echo "Unknown branch, skipping ownership change"
                         return // Skip the SSH publisher step if no valid config is set
@@ -140,7 +140,7 @@ pipeline {
                 script {
                     echo "Deploying branch ${env.BRANCH_NAME} to production server"
                     sshPublisher(publishers: [sshPublisherDesc(
-                        configName: 'TestServer2',
+                        configName: 'ProductionServer',
                         transfers: [sshTransfer(
                             cleanRemote: false,
                             excludes: '',
@@ -171,7 +171,7 @@ pipeline {
                 script {
                     echo "Deploying branch ${env.BRANCH_NAME} to testing server"
                     sshPublisher(publishers: [sshPublisherDesc(
-                        configName: 'TestServer2',
+                        configName: 'TestingServer',
                         transfers: [sshTransfer(
                             cleanRemote: false,
                             excludes: '',
@@ -202,7 +202,7 @@ pipeline {
                 script {
                     echo "Deploying branch ${env.BRANCH_NAME} to development server"
                     sshPublisher(publishers: [sshPublisherDesc(
-                        configName: 'TestServer2', // Ensure this config is defined correctly for sprint branches
+                        configName: 'TestServer2',
                         transfers: [sshTransfer(
                             cleanRemote: false,
                             excludes: '',
