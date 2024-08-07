@@ -84,6 +84,7 @@ pipeline {
                     def execCommand = ''
                     def configName = ''
 
+                    // Set appDir, execCommand, and configName based on the branch
                     if (env.BRANCH_NAME == 'main') {
                         echo "Changing ownership on production server"
                         appDir = env.PROD_APP_DIR
@@ -98,32 +99,35 @@ pipeline {
                         echo "Changing ownership on sprint server"
                         appDir = env.DEV_APP_DIR
                         execCommand = "sudo chown -R jenkins:jenkins ${appDir}"
-                        configName = 'TestServer2' // Ensure this config is defined
+                        configName = 'TestServer2' // Ensure this config is defined correctly for sprint branches
                     } else {
                         echo "Unknown branch, skipping ownership change"
                         return // Skip the SSH publisher step if no valid config is set
                     }
 
-                    sshPublisher(publishers: [sshPublisherDesc(
-                        configName: configName,
-                        transfers: [sshTransfer(
-                            cleanRemote: false,
-                            excludes: '',
-                            execCommand: execCommand,
-                            execTimeout: 1800000,
-                            flatten: false,
-                            makeEmptyDirs: false,
-                            noDefaultExcludes: false,
-                            patternSeparator: '[, ]+',
-                            remoteDirectory: '',
-                            remoteDirectorySDF: false,
-                            removePrefix: '',
-                            sourceFiles: ''
-                        )],
-                        usePromotionTimestamp: false,
-                        useWorkspaceInPromotion: false,
-                        verbose: true
-                    )])
+                    if (configName) {
+                        echo "Using config: ${configName} for ownership change"
+                        sshPublisher(publishers: [sshPublisherDesc(
+                            configName: configName,
+                            transfers: [sshTransfer(
+                                cleanRemote: false,
+                                excludes: '',
+                                execCommand: execCommand,
+                                execTimeout: 1800000,
+                                flatten: false,
+                                makeEmptyDirs: false,
+                                noDefaultExcludes: false,
+                                patternSeparator: '[, ]+',
+                                remoteDirectory: '',
+                                remoteDirectorySDF: false,
+                                removePrefix: '',
+                                sourceFiles: ''
+                            )],
+                            usePromotionTimestamp: false,
+                            useWorkspaceInPromotion: false,
+                            verbose: true
+                        )])
+                    }
                 }
             }
         }
@@ -198,7 +202,7 @@ pipeline {
                 script {
                     echo "Deploying branch ${env.BRANCH_NAME} to development server"
                     sshPublisher(publishers: [sshPublisherDesc(
-                        configName: 'TestServer2', // Ensure this config is defined
+                        configName: 'TestServer2', // Ensure this config is defined correctly for sprint branches
                         transfers: [sshTransfer(
                             cleanRemote: false,
                             excludes: '',
