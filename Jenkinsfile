@@ -73,12 +73,15 @@ pipeline {
         stage('Change Ownership') {
             steps {
                 script {
+                    // Debugging information
                     echo "Branch Name: ${env.BRANCH_NAME}"
                     echo "Sprint Branch Prefix: ${env.SPRING_BRANCH_PREFIX}"
                     echo "Regex Pattern: ^${env.SPRING_BRANCH_PREFIX}.*"
 
-                    // Check if the branch matches the sprint pattern
-                    if (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'test' || env.BRANCH_NAME.startsWith(env.SPRING_BRANCH_PREFIX)) {
+                    // Debugging check for when condition
+                    if (env.BRANCH_NAME == 'main' || 
+                        env.BRANCH_NAME == 'test' || 
+                        env.BRANCH_NAME.startsWith(env.SPRING_BRANCH_PREFIX)) {
                         echo "Branch matches one of the conditions."
                     } else {
                         echo "Branch does not match any conditions."
