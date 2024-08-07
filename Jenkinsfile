@@ -96,7 +96,7 @@ pipeline {
                         echo "Changing ownership on sprint server"
                         appDir = env.DEV_APP_DIR
                         execCommand = "sudo chown -R jenkins:jenkins ${appDir}"
-                        configName = 'DevServerConfig' // Change config for sprint branches
+                        configName = 'TestServer2' // Change config for sprint branches
                     } else {
                         echo "Unknown branch, skipping ownership change"
                         return // Skip the SSH publisher step if no valid config is set
@@ -196,7 +196,7 @@ pipeline {
                 script {
                     echo "Deploying branch ${env.BRANCH_NAME} to development server"
                     sshPublisher(publishers: [sshPublisherDesc(
-                        configName: 'DevServerConfig',
+                        configName: 'TestServer2',
                         transfers: [sshTransfer(
                             cleanRemote: false,
                             excludes: '',
