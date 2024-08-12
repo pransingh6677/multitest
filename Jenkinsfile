@@ -192,7 +192,7 @@ pipeline {
 
         stage('Deploy to Dev') {
             when {
-                branch 'dev' // Deploy only for the dev branch
+                branch 'sprint-*' // Deploy only for the dev branch
             }
             steps {
                 script {
