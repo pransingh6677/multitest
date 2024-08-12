@@ -1,5 +1,5 @@
 pipeline {
-    agent any  
+    agent any 
 
     environment {
         // Define environment variables with default values 
@@ -37,7 +37,7 @@ pipeline {
             }
         }
 
-       stage('Backup Production') {
+        stage('Backup Production') {
             when {
                 branch 'main' // Run only for the main branch
             }
@@ -68,66 +68,63 @@ pipeline {
             }
         }
 
-
-
-
-        
         stage('Change Ownership') {
-            when {
-                anyOf {
-                    branch 'main'
-                    branch 'test'
-                    branch 'dev'
-                }
+    when {
+        anyOf {
+            branch 'main'
+            branch 'test'
+            branch 'sprint-*'
+        }
+    }
+    steps {
+        script {
+            def appDir = ''
+            def execCommand = ''
+            def configName = ''
+
+            if (env.BRANCH_NAME == 'main') {
+                echo "Changing ownership on production server"
+                appDir = env.PROD_APP_DIR
+                execCommand = "sudo chown -R jenkins:jenkins ${appDir}"
+                configName = 'TestServer2'
+            } else if (env.BRANCH_NAME == 'test') {
+                echo "Changing ownership on testing server"
+                appDir = env.TEST_APP_DIR
+                execCommand = "sudo chown -R azureuser:azureuser ${appDir}"
+                configName = 'TestServer2'
+            } else if (env.BRANCH_NAME.startsWith('sprint-')) {
+                echo "Changing ownership on development server"
+                appDir = env.DEV_APP_DIR
+                execCommand = "sudo chown -R azureuser:azureuser ${appDir}"
+                configName = 'TestServer2'
             }
-            steps {
-                script {
-                    def appDir = ''
-                    def execCommand = ''
-                    def configName = ''
 
-                    if (env.BRANCH_NAME == 'main') {
-                        echo "Changing ownership on production server"
-                        appDir = env.PROD_APP_DIR
-                        execCommand = "sudo chown -R jenkins:jenkins ${appDir}"
-                        configName = 'TestServer2'
-                    } else if (env.BRANCH_NAME == 'test') {
-                        echo "Changing ownership on testing server"
-                        appDir = env.TEST_APP_DIR
-                        execCommand = "sudo chown -R azureuser:azureuser ${appDir}"
-                        configName = 'TestServer2'
-                    } else {
-                        echo "Changing ownership on development server"
-                        appDir = env.DEV_APP_DIR
-                        execCommand = "sudo chown -R azureuser:azureuser ${appDir}"
-                        configName = 'DevServerConfig' // Ensure this config is defined
-                    }
-
-                    if (configName) {
-                        sshPublisher(publishers: [sshPublisherDesc(
-                            configName: configName,
-                            transfers: [sshTransfer(
-                                cleanRemote: false,
-                                excludes: '',
-                                execCommand: execCommand,
-                                execTimeout: 1800000,
-                                flatten: false,
-                                makeEmptyDirs: false,
-                                noDefaultExcludes: false,
-                                patternSeparator: '[, ]+',
-                                remoteDirectory: '',
-                                remoteDirectorySDF: false,
-                                removePrefix: '',
-                                sourceFiles: ''
-                            )],
-                            usePromotionTimestamp: false,
-                            useWorkspaceInPromotion: false,
-                            verbose: true
-                        )])
-                    }
-                }
+            if (configName) {
+                sshPublisher(publishers: [sshPublisherDesc(
+                    configName: configName,
+                    transfers: [sshTransfer(
+                        cleanRemote: false,
+                        excludes: '',
+                        execCommand: execCommand,
+                        execTimeout: 1800000,
+                        flatten: false,
+                        makeEmptyDirs: false,
+                        noDefaultExcludes: false,
+                        patternSeparator: '[, ]+',
+                        remoteDirectory: '',
+                        remoteDirectorySDF: false,
+                        removePrefix: '',
+                        sourceFiles: ''
+                    )],
+                    usePromotionTimestamp: false,
+                    useWorkspaceInPromotion: false,
+                    verbose: true
+                )])
             }
         }
+    }
+}
+
 
         
 
@@ -195,13 +192,13 @@ pipeline {
 
         stage('Deploy to Dev') {
             when {
-                branch 'sprint-.*' // Deploy only for the dev branch
+                branch 'sprint-*' // Deploy only for the dev branch
             }
             steps {
                 script {
                     echo "Deploying branch ${env.BRANCH_NAME} to development server"
                     sshPublisher(publishers: [sshPublisherDesc(
-                        configName: 'DevServerConfig', // Ensure this config is defined
+                        configName: 'TestServer2', // Ensure this config is defined
                         transfers: [sshTransfer(
                             cleanRemote: false,
                             excludes: '',
